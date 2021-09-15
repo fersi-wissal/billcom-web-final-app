@@ -9,13 +9,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
+@Table(name="Chattable")
+
 public class Chat {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	private long idUser;
-	private String user;
-	private String Message;
+	private String userApp;
+	private String messageUser;
 	private LocalDateTime createdAt;
 
 	public Chat() {
@@ -25,8 +27,8 @@ public class Chat {
 	public Chat(long idUser, String user, String message) {
 	    this();
 		this.idUser = idUser;
-		this.user = user;
-		Message = message;
+		this.userApp = user;
+		this.messageUser = message;
 	
 	}
 
@@ -39,19 +41,19 @@ public class Chat {
 	}
 
 	public String getUser() {
-		return user;
+		return userApp;
 	}
 
 	public void setUser(String user) {
-		this.user = user;
+		this.userApp = user;
 	}
 
 	public String getMessage() {
-		return Message;
+		return this.messageUser;
 	}
 
 	public void setMessage(String message) {
-		Message = message;
+		this.messageUser = message;
 	}
 
 	public long getIdUser() {
