@@ -17,11 +17,11 @@ import javax.sql.DataSource;
  */
 public class DatabaseConfig {
  @Value("${spring.datasource.url}")
- private String Billcom_app;
+ private String dbUrl;
  @Bean
  public DataSource dataSource() {
  HikariConfig config = new HikariConfig();
- config.setJdbcUrl(Billcom_app);
+ config.setJdbcUrl(dbUrl);
  return new HikariDataSource(config);
  }
 }
