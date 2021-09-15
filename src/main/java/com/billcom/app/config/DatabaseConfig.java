@@ -10,7 +10,11 @@ import javax.sql.DataSource;
 
 @Configuration
 
-
+/**
+ * 
+ * @author ferci wissal
+ *
+ */
 public class DatabaseConfig {
  @Value("${spring.datasource.url}")
  private String Billcom_app;
