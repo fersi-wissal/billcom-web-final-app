@@ -48,9 +48,11 @@ public class NotificationService {
 	}
 
 	public Set<Notification> getNotificationList() {
+		if(securityUtils.getLoggedUser() != null) {
 		return securityUtils.getLoggedUser().getNotifcation().stream().filter(
 				notification -> notification.getNotificationType().compareTo(NotificationType.notification) == 0)
-				.collect(Collectors.toSet());
+				.collect(Collectors.toSet());}
+		return null;
 
 	}
 

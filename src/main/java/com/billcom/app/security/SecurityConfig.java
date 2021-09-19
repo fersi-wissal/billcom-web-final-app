@@ -44,10 +44,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		// Session : c'est un systéme d'authentification par résference
 
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		//http.authorizeRequests().antMatchers("/login/**","/**","/chat/**","/notif/**", "/sendEmail/**","/reset/**","/check/**", "/photoUser/**","/getphotoLeader/**").permitAll();
 		http.authorizeRequests().antMatchers("/**","/login","/chat/**","/notif/**", "/sendEmail/**","/reset/**","/check/**", "/photoUser/**","/getphotoLeader/**").permitAll();
 
-	//	http.authorizeRequests().antMatchers("/swagger-ui.html/**","/v2/api-docs", "/configuration/ui", "/swagger-resources", "/configuration/security", "/webjars/**","/swagger-resources/configuration/ui").permitAll();
 		http.authorizeRequests().antMatchers("/swagger-ui.html","/v2/api-docs", "/configuration/ui", "/swagger-resources", "/configuration/security", "/webjars/**","/swagger-resources/configuration/ui").permitAll();
 
 		http.authorizeRequests().antMatchers(HttpMethod.POST, "/user/create/**", "/user/add/**").permitAll();
