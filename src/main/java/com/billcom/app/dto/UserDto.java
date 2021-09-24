@@ -17,7 +17,6 @@ public class UserDto  {
 		private String mobile;
 		private String email;
 	    private String password;
-	    private boolean active;
 	    private String adresse;
 	    private Set<String> roles;
 	    private int passportNumber;
@@ -33,12 +32,11 @@ public class UserDto  {
 			this.mobile = mobile;
 			this.email = email;
 			this.password = password;
-			this.active = active;
 			this.adresse = adresse;
 		}
 		
 	
-		public UserDto(String firstName, String lastName, String mobile, String email, String password, boolean active,
+		public UserDto(String firstName, String lastName, String mobile, String email, String password, 
 				String adresse, Set<String> roles) {
 			super();
 			this.firstName = firstName;
@@ -46,7 +44,6 @@ public class UserDto  {
 			this.mobile = mobile;
 			this.email = email;
 			this.password = password;
-			this.active = active;
 			this.adresse = adresse;
 			this.roles = roles;
 		}
@@ -85,12 +82,7 @@ public class UserDto  {
 		public void setPassword(String password) {
 			this.password = password;
 		}
-		public boolean isActive() {
-			return active;
-		}
-		public void setActive(boolean active) {
-			this.active = active;
-		}
+		
 		public Set<String> getRoles() {
 			return roles;
 		}
@@ -137,7 +129,7 @@ public class UserDto  {
 	@Override
 	public String toString() {
 		return "UserDto [firstName=" + firstName + ", lastName=" + lastName + ", mobile=" + mobile + ", email=" + email
-				+ ", password=" + password + ", active=" + active + ", adresse=" + adresse + ", roles=" + roles
+				+ ", password=" + password + ", adresse=" + adresse + ", roles=" + roles
 				+ ", passportNumber=" + passportNumber + ", passeportValidityDate=" + passeportValidityDate
 				+ ", visaValidateDate=" + visaValidateDate + "]";
 	}

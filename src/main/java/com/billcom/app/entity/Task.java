@@ -83,6 +83,25 @@ public class Task {
 		this.deleveryDate = deleveryDate;
 		this.createdBy = createdBy;
 	}
+	public Task(long id, String taskName, String descriptionTask, TaskPriority taskPriority, Status status,
+			LocalDateTime deleveryDate, String createdBy,TeamMember teamMember) {
+		this();
+		this.id = id;
+		this.taskName = taskName;
+		this.descriptionTask = descriptionTask;
+		this.taskPriority = taskPriority;
+		this.status = status;
+		this.deleveryDate = deleveryDate;
+		this.createdBy = createdBy;
+		this.teamMember = teamMember;
+	}
+	
+	
+	
+	
+	
+	
+	
 	public TaskDto fromTaskToTaskDto(Task task) {
 		return new TaskDto(task.getId(),task.getTaskName());
 	}

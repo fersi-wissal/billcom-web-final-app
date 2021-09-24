@@ -2,6 +2,7 @@ package com.billcom.app.service;
 
 import static java.nio.file.Files.copy;
 
+
 import static java.nio.file.Paths.get;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
@@ -127,7 +128,7 @@ public class ProjectService {
 			Set<Notification> notificationList = user.getNotifcation();
 			notificationList.add(new Notification(
 					securityUtils.getLoggedUser().getFirstName() + " " + securityUtils.getLoggedUser().getLastName()
-							+ " invited you to be a  team  leader for",
+							+ " invited you to be a  team  member for",
 					teamDto.getTeamName(), securityUtils.getLoggedUser().getId(), LocalDateTime.now()));
 
 			user.setNotifcation(notificationList);
@@ -145,7 +146,7 @@ public class ProjectService {
 		Set<Notification> notificationList = user.getNotifcation();
 		notificationList.add(new Notification(
 				securityUtils.getLoggedUser().getFirstName() + " " + securityUtils.getLoggedUser().getLastName()
-						+ " invited you to be a  team member for",
+						+ " invited you to be a  team leader for",
 				teamDto.getTeamName(), securityUtils.getLoggedUser().getId(), LocalDateTime.now()));
 		user.setNotifcation(notificationList);
 		for (Role r : user.getRoles()) {

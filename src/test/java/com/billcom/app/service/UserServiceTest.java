@@ -120,11 +120,11 @@ class UserServiceTest {
 		UserDto userDto = new UserDto();
 
 		// when
-		userService.addUser(userDto);
+		userService.create(userDto);
 
 
 		// then
-		Mockito.verify(userService, Mockito.times(1)).addUser(userDto);
+		Mockito.verify(userService, Mockito.times(1)).create(userDto);
 	}
 
 	@Test

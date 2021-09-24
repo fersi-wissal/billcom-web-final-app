@@ -280,10 +280,24 @@ public class TeamService {
 	 * @return List of team for a specefic team Lead
 	 */
 	public List<Team> teamListOfLeader() {
-		return teamRepository.findAll().stream().filter(team -> team.getLeader().getUser().getId() == getCurrentUser().getId())
+		return teamRepository.findAll().stream().filter(team -> team.getLeader().getUser().getId() == getCurrentUser().getId()).filter(team-> team.getDueDate().isAfter(LocalDateTime.now()) & team.getStartDate().isAfter(LocalDateTime.now()))
 				.collect(Collectors.toList());
 
 	}
+	
+	public List<Team> passedTeamListOfLeader() {
+		return teamRepository.findAll().stream().filter(team -> team.getLeader().getUser().getId() == getCurrentUser().getId()).filter(team-> team.getDueDate().isBefore(LocalDateTime.now()))
+				.collect(Collectors.toList());
+
+	}
+	public List<Team> futureTeamListOfLeader() {
+		return teamRepository.findAll().stream().filter(team -> team.getLeader().getUser().getId() == getCurrentUser().getId()).filter(team-> team.getDueDate().isBefore(LocalDateTime.now()) & team.getStartDate().isBefore(LocalDateTime.now()))
+				.collect(Collectors.toList());
+
+	}
+	
+	
+	
 
 	/**
 	 * 

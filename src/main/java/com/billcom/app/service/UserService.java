@@ -2,6 +2,8 @@ package com.billcom.app.service;
 
 import static java.nio.file.Files.copy;
 
+import static java.nio.file.Files.copy;
+
 import static java.nio.file.Paths.get;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,16 +35,19 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.billcom.app.dto.UserDto;
+import com.billcom.app.dto.UserSkillDto;
 import com.billcom.app.entity.Role;
 import com.billcom.app.entity.Skill;
-
+import com.billcom.app.entity.Task;
 import com.billcom.app.entity.UserApp;
 import com.billcom.app.exception.NotFoundException;
 import com.billcom.app.model.PasswordUpdateModel;
 import com.billcom.app.repository.RoleRepository;
+import com.billcom.app.repository.SkillRepository;
 import com.billcom.app.repository.UserRepository;
 import com.billcom.app.security.SecurityUtils;
 
@@ -52,20 +58,24 @@ public class UserService {
 
 	private UserRepository userRepository;
 	private RoleRepository roleRepository;
+	private SkillRepository skillRepository;
+
 	private JavaMailSender mailSender;
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	private SecurityUtils securityUtils;
 	public static String uploadDirectory = System.getProperty("user.dir") + "/src/main/resources/static/userFile";
-	public static String userDirectory = System.getProperty("user.dir") + "/src/main/resources/static/assets/userPhoto";
+	public static final String USERDIRECTORY = System.getProperty("user.dir")
+			+ "/src/main/resources/static/assets/userPhoto";
 
 	@Autowired
-	public UserService(UserRepository userRepository, RoleRepository roleRepository,
+	public UserService(UserRepository userRepository, RoleRepository roleRepository,SkillRepository skillRepository,
 			BCryptPasswordEncoder bCryptPasswordEncoder, SecurityUtils securityUtils, JavaMailSender mailSender) {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.securityUtils = securityUtils;
 		this.mailSender = mailSender;
+		this.skillRepository =  skillRepository;
 	}
 
 	public UserApp getCurrentUser() {
@@ -74,7 +84,7 @@ public class UserService {
 
 	/** Create a new User */
 
-	public void addUser(UserDto userDto) {
+	public void addUser(UserDto userDto, @RequestParam("file") MultipartFile multipartFile) {
 
 		UserApp userLogged = getCurrentUser();
 		userLogged.getRoles().stream().forEach(role -> {
@@ -90,6 +100,46 @@ public class UserService {
 
 				user.setPassword(hashPassword);
 				user.setRoles(roleLis);
+
+				String filename = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+
+				Path fileStorage = get(USERDIRECTORY, filename).toAbsolutePath().normalize();
+
+				try {
+					copy(multipartFile.getInputStream(), fileStorage, REPLACE_EXISTING);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				user.setPhotoName(filename);
+
+				userRepository.save(user);
+				sendEmailRegisterUser(userDto.getEmail(), userDto.getPassword(), userDto.getFirstName(),
+						userDto.getLastName());
+			}
+
+		});
+
+	}
+
+	public void addUserWithoutPhoto(UserDto userDto) {
+
+		UserApp userLogged = getCurrentUser();
+		userLogged.getRoles().stream().forEach(role -> {
+			if (securityUtils.checkifUserLoggedIsManager(userLogged)
+					& !userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+
+				String hashPassword = bCryptPasswordEncoder.encode(userDto.getPassword());
+
+				Set<Role> roleLis = userDto.getRoles().stream().filter(r -> roleRepository.existsByName(r))
+						.map(r -> roleRepository.findByName(r)).collect(Collectors.toSet());
+
+				UserApp user = userDto.fromDtoToUser();
+
+				user.setPassword(hashPassword);
+				user.setRoles(roleLis);
+
+				
 
 				userRepository.save(user);
 				sendEmailRegisterUser(userDto.getEmail(), userDto.getPassword(), userDto.getFirstName(),
@@ -123,9 +173,9 @@ public class UserService {
 	public void updateUser(Long id, UserDto userDto) {
 
 		userRepository.findById(id).map(user -> {
-		
-		return 		userRepository.save(userDto.updateFromDto(user));}).orElseThrow(() -> new NotFoundException("User Not Exists"));
-		
+
+			return userRepository.save(userDto.updateFromDto(user));
+		}).orElseThrow(() -> new NotFoundException("User Not Exists"));
 
 	}
 
@@ -148,13 +198,12 @@ public class UserService {
 	public List<UserApp> getUsers() {
 		UserApp userLogged = getCurrentUser();
 		if (securityUtils.checkifUserLoggedIsManager(userLogged)) {
-			return userRepository.findAll().stream()
-					.collect(Collectors.mapping(
-							user -> new UserApp(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(),
-									user.getEmail(), user.isActive(), getRoleList(user), user.getAdresse(),user.getSkills()),
-							Collectors.toList())
+			return userRepository.findAll().stream().collect(Collectors.mapping(
+					user -> new UserApp(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(),
+							user.getEmail(), user.isActive(), getRoleList(user), user.getAdresse(), user.getSkills()),
+					Collectors.toList())
 
-					);
+			);
 
 		}
 
@@ -171,12 +220,31 @@ public class UserService {
 
 	/** Get List Of User With Role Member */
 
-	public List<UserApp> getListUserWithRoleMember() {
+/*	public List<UserApp> getListUserWithRoleMember() {
 		return userRepository.findAll().stream().filter(UserApp::isActive).collect(Collectors.toList()).stream()
 				.filter(user -> user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("member")))
 				.collect(Collectors.toList());
 
+	}*/
+	
+	public List<UserApp> getListUserWithRoleMember() {
+		return userRepository.findAll().stream().filter(UserApp::isActive).collect(Collectors.toList()).stream()
+				.filter(user -> user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("member")))
+				.collect(Collectors.mapping(
+						user -> new UserApp(user.getId(),  user.getFirstName(),user.getLastName(), user.isActive()),
+						Collectors.toList()));
+
 	}
+	public List<UserApp> getListMemberWithSkill(String name) {
+		return userRepository.findAll().stream().filter(UserApp::isActive).collect(Collectors.toList()).stream()
+				.filter(user -> user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("member")))
+				.filter(user -> user.getSkills().stream().anyMatch(skill -> skill.getRoleLabel().equalsIgnoreCase(name)))
+				.collect(Collectors.mapping(
+						user -> new UserApp(user.getId(),  user.getFirstName(),user.getLastName(),user.isActive() ),
+						Collectors.toList()));
+
+	}
+	
 
 	/** Get List Of User With Role Leader Api Stream */
 
@@ -185,6 +253,12 @@ public class UserService {
 				.filter(user -> user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("leader")))
 				.collect(Collectors.toList());
 	}
+	
+	
+	
+	
+	
+	
 
 	/** Get List Of User With Role Project Leader Api Stream */
 
@@ -193,6 +267,11 @@ public class UserService {
 				user -> user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("project Leader")))
 				.collect(Collectors.toList());
 	}
+	
+	
+	
+	
+	
 
 	/** send e-mail Reset Password to User */
 
@@ -277,7 +356,7 @@ public class UserService {
 	public byte[] getPhoto(Long id) throws Exception {
 		UserApp user = userRepository.findById(id).get();
 
-		return Files.readAllBytes(Paths.get(userDirectory +"/" + user.getPhotoName()));
+		return Files.readAllBytes(Paths.get(USERDIRECTORY + "/" + user.getPhotoName()));
 
 	}
 
@@ -285,9 +364,8 @@ public class UserService {
 
 		UserApp user = userRepository.findById(id).get();
 		user.setPhotoName(file.getOriginalFilename() + RandomString.make(10));
-		Files.write(Paths.get(userDirectory +"/" + user.getPhotoName() ), file.getBytes());
+		Files.write(Paths.get(USERDIRECTORY + "/" + user.getPhotoName()), file.getBytes());
 
-		
 		userRepository.save(user);
 
 	}
@@ -308,19 +386,17 @@ public class UserService {
 		return user.isPendingFirstLogin();
 
 	}
-	
-	public void adSkillsToUser(long id , Skill skill) {
-		
-		userRepository.findById(id).map(
-				user ->{
-					if(! (user.getSkills().stream().anyMatch(s -> s.getRoleLabel().equalsIgnoreCase(skill.getRoleLabel()))))
-					user.getSkills().add(skill);
-					return userRepository.save(user);
-					
-				}
-				).orElseThrow(() -> new  NotFoundException("User Not Found"));}
-	
-	
+
+	public void adSkillsToUser(long id, Skill skill) {
+
+		userRepository.findById(id).map(user -> {
+			if (!(user.getSkills().stream().anyMatch(s -> s.getRoleLabel().equalsIgnoreCase(skill.getRoleLabel()))))
+				user.getSkills().add(skill);
+			return userRepository.save(user);
+
+		}).orElseThrow(() -> new NotFoundException("User Not Found"));
+	}
+
 	public List<String> uploadFiles(long id, List<MultipartFile> multipartFiles) throws IOException {
 		UserApp user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
 		List<String> filenames = user.getFiles();
@@ -328,7 +404,7 @@ public class UserService {
 
 			String filename = StringUtils.cleanPath(file.getOriginalFilename());
 
-			Path fileStorage = get(uploadDirectory , filename).toAbsolutePath().normalize();
+			Path fileStorage = get(uploadDirectory, filename).toAbsolutePath().normalize();
 
 			copy(file.getInputStream(), fileStorage, REPLACE_EXISTING);
 			filenames.add(filename);
@@ -353,10 +429,5 @@ public class UserService {
 		return ResponseEntity.ok().contentType(MediaType.parseMediaType(Files.probeContentType(filePath)))
 				.headers(httpHeaders).body(resource);
 	}
-	
-	
-	
-	
-	
 
 }

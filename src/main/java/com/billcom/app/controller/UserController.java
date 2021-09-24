@@ -1,8 +1,8 @@
 package com.billcom.app.controller;
 
 import java.io.IOException;
-import java.util.List;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -25,6 +25,7 @@ import com.billcom.app.entity.UserApp;
 import com.billcom.app.model.PasswordUpdateModel;
 import com.billcom.app.repository.UserRepository;
 import com.billcom.app.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class UserController {
@@ -41,11 +42,20 @@ public class UserController {
 		userService.updatePasswordAttemptFirstLogin(updatePasswordModel);
 	}
 
-	@PostMapping("/user/create")
+	@PostMapping("/user/createWithoutPhoto")
 	public void createUser(@RequestBody UserDto user) {
-		userService.addUser(user);
+		userService.addUserWithoutPhoto(user);
 	}
-	//
+	
+	@PostMapping("/user/create")
+	public void createUser(@RequestParam String userDto, @RequestParam("file") MultipartFile multipartFile)
+			throws IOException {
+		UserDto newUser = new ObjectMapper().readValue(userDto, UserDto.class);
+
+		userService.addUser(newUser,multipartFile);
+	}
+	
+
 	@PostMapping("/user/add")
 	public void addUser(@RequestBody UserDto user) {
 		userService.create(user);

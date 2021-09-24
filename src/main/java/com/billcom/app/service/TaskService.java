@@ -21,6 +21,7 @@ import com.billcom.app.entity.Comment;
 import com.billcom.app.entity.Notification;
 import com.billcom.app.entity.Status;
 import com.billcom.app.entity.Task;
+import com.billcom.app.entity.Team;
 import com.billcom.app.entity.TeamMember;
 import com.billcom.app.entity.UserApp;
 import com.billcom.app.enumeration.TaskPriority;
@@ -32,6 +33,7 @@ import com.billcom.app.repository.StateRepository;
 import com.billcom.app.repository.TaskRepository;
 import com.billcom.app.repository.TeamMemberRepository;
 import com.billcom.app.repository.TeamRepository;
+import com.billcom.app.repository.UserRepository;
 import com.billcom.app.security.SecurityUtils;
 
 import org.springframework.core.io.Resource;
@@ -63,13 +65,13 @@ public class TaskService {
 	private SecurityUtils securityUtils;
 	private TeamRepository teamRepository;
 	private TeamService teamService;
+	private UserRepository userRepository;
 	private CommentRepository commentRepository;
-	public static final String TASKDIRECTORY = System.getProperty("user.dir")
-			+ "/src/main/resources/static/taskFile";
+	public static final String TASKDIRECTORY = System.getProperty("user.dir") + "/src/main/resources/static/taskFile";
 
 	public TaskService(TaskRepository taskRepository, TeamMemberRepository teamMemberRepository,
 			StateRepository statusRepository, SecurityUtils securityUtils, TeamRepository teamRepository,
-			TeamService teamService, CommentRepository commentRepository) {
+			TeamService teamService, CommentRepository commentRepository, UserRepository userRepository) {
 		this.taskRepository = taskRepository;
 		this.teamMemberRepository = teamMemberRepository;
 		this.teamRepository = teamRepository;
@@ -77,6 +79,7 @@ public class TaskService {
 		this.statusRepository = statusRepository;
 		this.securityUtils = securityUtils;
 		this.teamService = teamService;
+		this.userRepository = userRepository;
 	}
 
 	/****
@@ -121,6 +124,17 @@ public class TaskService {
 			task.setTeamMember(teamMember);
 			task.setTaskPriority(priority);
 			task.setCreatedBy(userLogged.getFirstName() + " " + userLogged.getLastName());
+			if (teamMember.getUser().getId() != securityUtils.getLoggedUser().getId()) {
+				Set<Notification> notificationList = teamMember.getUser().getNotifcation();
+				notificationList.add(new Notification(
+						securityUtils.getLoggedUser().getFirstName() + " " + securityUtils.getLoggedUser().getLastName()
+								+ " assigned you a new task ",
+						taskDto.getTaskName(), securityUtils.getLoggedUser().getId(), LocalDateTime.now()));
+				teamMember.getUser().setNotifcation(notificationList);
+				userRepository.save(teamMember.getUser());
+
+			}
+
 			return taskRepository.save(task);
 		}
 		return null;
@@ -138,9 +152,9 @@ public class TaskService {
 		Task task = taskRepository.findById(id).orElseThrow(() -> new NotFoundException("Task Does Not Exists"));
 		Status statu = statusRepository.findByStatusDescritpion(status)
 				.orElseThrow(() -> new NotFoundException("Status Does Not Exist! You should create it"));
-         if(status.equalsIgnoreCase("Done")) {
-        	 task.setEffectiveDueDate(LocalDateTime.now());
-         }
+		if (status.equalsIgnoreCase("Done")) {
+			task.setEffectiveDueDate(LocalDateTime.now());
+		}
 
 		task.setStatus(statu);
 		return taskRepository.save(task);
@@ -164,7 +178,6 @@ public class TaskService {
 		}
 
 	}
-
 
 	public List<TaskStatusDto> getTasksMember(long id) {
 		TeamMember teamMember = teamMemberRepository.findById(id)
@@ -200,6 +213,60 @@ public class TaskService {
 		return allTaskDtoList;
 	}
 
+	
+	public List<TaskStatusDto> getTasksTeam(long id) {
+		Team team = teamRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException("Team Does Not Exist"));
+		List<Task> tasks = new ArrayList<>();
+		
+		for(TeamMember t : team.getTeamMember() ) {
+
+		tasks.addAll(taskRepository.findAllByTeamMember(t).stream()
+				.collect(Collectors.mapping(
+						task -> new Task(task.getId(), task.getTaskName(), task.getDescriptionTask(),
+								task.getTaskPriority(), task.getStatus(), task.getDeleveryDate(), task.getCreatedBy(),t),
+						Collectors.toList())));
+		}
+		
+		
+		
+		
+		Map<String, List<Task>> testTask = tasks.stream()
+				.collect(Collectors.groupingBy(task -> task.getStatus().getStatusDescritpion()));
+
+		List<TaskStatusDto> allTaskDtoList = new ArrayList<>();
+
+		Iterator<Map.Entry<String, List<Task>>> iterator = testTask.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Map.Entry<String, List<Task>> entryy = iterator.next();
+			TaskStatusDto taskStatusDto = new TaskStatusDto(entryy.getValue().get(0).getStatus().getId(),
+					entryy.getKey(), entryy.getValue());
+			allTaskDtoList.add(taskStatusDto);
+
+		}
+		Comparator<TaskStatusDto> compareById = new Comparator<TaskStatusDto>() {
+			@Override
+			public int compare(TaskStatusDto t1, TaskStatusDto t2) {
+				return t1.getId().compareTo(t2.getId());
+			}
+		};
+
+		Collections.sort(allTaskDtoList, compareById);
+		return allTaskDtoList;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public Task getTaskDetails(long id) {
 		return taskRepository.findById(id).orElseThrow(() -> new NotFoundException(" Task does not found"));
 	}
@@ -239,6 +306,7 @@ public class TaskService {
 		UserApp userLogged = getCurrentUser();
 		Comment newComment = new Comment(commentDto.getContent(), userLogged);
 		task.getComments().add(newComment);
+		if ( task.getTeamMember().getUser().getId() != userLogged.getId() ) {
 		Set<Notification> notificationList = task.getTeamMember().getUser().getNotifcation();
 
 		notificationList.add(new Notification(
@@ -246,7 +314,7 @@ public class TaskService {
 						+ " commented your task  ",
 				task.getTaskName(), securityUtils.getLoggedUser().getId(), LocalDateTime.now()));
 
-		task.getTeamMember().getUser().setNotifcation(notificationList);
+		task.getTeamMember().getUser().setNotifcation(notificationList);}
 		return taskRepository.save(task);
 
 	}
@@ -289,7 +357,7 @@ public class TaskService {
 	}
 
 	public List<Task> getTasksBeetweenDates(long id, String firstdDate, String lastDate) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 		LocalDateTime firstDate = LocalDateTime.parse(firstdDate, formatter);
 		LocalDateTime finalDate = LocalDateTime.parse(lastDate, formatter);
 
@@ -318,13 +386,22 @@ public class TaskService {
 		LocalDateTime firstDate = LocalDateTime.parse(firstdDate, formatter);
 		LocalDateTime finalDate = LocalDateTime.parse(lastDate, formatter);
 
+		List<TeamTask> taskListTeam = new ArrayList<>();
 		long idUser = teamMemberRepository.getMemberById(id).get().getUser().getId();
 		long teamId = teamRepository.getJoin(teamMemberRepository.getMemberById(id).get().getId());
 
-		return taskRepository.findAll().stream().filter(task -> task.getTeamMember().getUser().getId() == idUser)
+		taskListTeam = taskRepository.findAll().stream()
+				.filter(task -> task.getTeamMember().getUser().getId() == idUser)
 				.filter(task -> !(task.getStatus().getStatusDescritpion().equalsIgnoreCase("Done")))
-				.filter(task -> task.getDeleveryDate().isAfter(firstDate) & task.getDeleveryDate().isBefore(finalDate))
+				.filter(task -> task.getCreationDate().isBefore(firstDate) & task.getDeleveryDate().isAfter(finalDate))
 				.map(task -> new TeamTask(task, teamRepository.findById(teamId).get())).collect(Collectors.toList());
+
+		taskListTeam.addAll(taskRepository.findAll().stream()
+				.filter(task -> task.getTeamMember().getUser().getId() == idUser)
+				.filter(task -> !(task.getStatus().getStatusDescritpion().equalsIgnoreCase("Done")))
+				.filter(task -> task.getCreationDate().isAfter(firstDate) & task.getDeleveryDate().isBefore(finalDate))
+				.map(task -> new TeamTask(task, teamRepository.findById(teamId).get())).collect(Collectors.toList()));
+		return taskListTeam;
 	}
 
 	/***************************************************

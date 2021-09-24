@@ -95,6 +95,18 @@ public class TeamController {
 	public  List<Team> teamListOfLeader() {
 		 return teamService.teamListOfLeader();
 	}
+	
+	@GetMapping("/passedTeamListOfLeader")
+	public  List<Team> passedTeamListOfLeader() {
+		 return teamService.passedTeamListOfLeader();
+	}
+	@GetMapping("/futureTeamListOfLeader")
+	public  List<Team> futureTeamListOfLeader() {
+		 return teamService.futureTeamListOfLeader();
+	}
+	
+	
+	
 	@GetMapping("/teamOfTeamMember")
 	public  List<TeamDto> teamOfTeamMember() {
 		 return teamService.teamOfTeamMember();

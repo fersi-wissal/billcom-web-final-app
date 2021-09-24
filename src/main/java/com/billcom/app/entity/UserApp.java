@@ -103,6 +103,21 @@ public class UserApp {
 		this.adresse = adresse;
 	}
 
+	
+	public UserApp(long id, String firstName, String lastName, int passportNumber) {
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.passportNumber = passportNumber;
+	}
+
+	public UserApp(long id, String firstName, String lastName,Set<Skill> skills) {
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.skills = skills;
+	}
+
 	public UserApp(long id, String firstName, String lastName, boolean active) {
 		this.id = id;
 		this.firstName = firstName;

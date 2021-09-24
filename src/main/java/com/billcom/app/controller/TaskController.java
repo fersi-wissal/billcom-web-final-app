@@ -62,10 +62,20 @@ public class TaskController {
 
 
 	@GetMapping("/getTasksMember/{idTeamMember}")
-	@PreAuthorize("hasRole('manager') or hasRole('leader')")
+	//@PreAuthorize("hasRole('manager') or hasRole('leader')")
 	public List<TaskStatusDto> getTasksMember(@PathVariable long idTeamMember) {
 		return taskService.getTasksMember(idTeamMember);
 	}
+	
+	@GetMapping("/getTasksTeam/{idTeam}")
+	//@PreAuthorize("hasRole('manager') or hasRole('leader')")
+	public List<TaskStatusDto> getTasksTeam(@PathVariable long idTeam) {
+		return taskService.getTasksTeam(idTeam);
+	}
+	
+	
+	
+	
 
 	@DeleteMapping("/deleteTask/{idTask}")
 	@PreAuthorize("hasRole('manager') or hasRole('leader')")
@@ -82,6 +92,7 @@ public class TaskController {
 	
 	@PostMapping("/addCommentToTask/{idTask}")
 	public Task addCommentToTask(@PathVariable long idTask, @RequestBody CommentDto commentDto) {
+		
 		 return taskService.addCommentToTask(idTask, commentDto);
 	}
 	@GetMapping("/getTasksComment/{idTask}")
