@@ -83,6 +83,14 @@ public class Team {
 		this.teamName = teamName;
 	}
 
+	
+	public Team(long id, String teamName, LocalDateTime startDate, LocalDateTime dueDate) {
+		this.id = id;
+		this.teamName = teamName;
+		this.startDate = startDate;
+		this.dueDate = dueDate;
+	}
+
 	public long getId() {
 		return this.id;
 	}

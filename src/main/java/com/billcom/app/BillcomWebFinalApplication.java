@@ -57,7 +57,7 @@ public class BillcomWebFinalApplication {
 	@Bean
 	public void addStatus() {
 	  if(stateRepository.findAll().size() == 0 ) {
-		stateRepository.save(new Status("to do"));
+		stateRepository.save(new Status("to-do"));
 		stateRepository.save(new Status("doing"));
 		stateRepository.save(new Status("test"));
 		stateRepository.save(new Status("done"));

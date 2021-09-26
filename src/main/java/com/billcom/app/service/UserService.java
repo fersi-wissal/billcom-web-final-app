@@ -63,9 +63,9 @@ public class UserService {
 	private JavaMailSender mailSender;
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	private SecurityUtils securityUtils;
-	public static String uploadDirectory = System.getProperty("user.dir") + "/src/main/resources/static/userFile";
+	public static final  String uploadDirectory = System.getProperty("user.dir") + "/src/main/resources/static/userFile";
 	public static final String USERDIRECTORY = System.getProperty("user.dir")
-			+ "/src/main/resources/static/assets/userPhoto";
+			+ "/src/main/resources/static/userPhoto";
 
 	@Autowired
 	public UserService(UserRepository userRepository, RoleRepository roleRepository,SkillRepository skillRepository,
