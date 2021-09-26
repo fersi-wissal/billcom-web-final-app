@@ -47,7 +47,7 @@ public class MemberWorkService {
 
 		UserApp user = securityUtils.getLoggedUser();
 		Team team = teamRepository.findById(idTeam).get();
-		if (!teamWorkRepository.findAll().stream().collect(Collectors.toList()).isEmpty()) {
+		if (!(teamWorkRepository.findAll().stream().collect(Collectors.toList()).size() == 0)) {
 			if (teamWorkRepository.findAll().stream().filter(teamWork -> teamWork.getTeam().getId() == team.getId())
 					.findAny().isPresent()) {
 				if (teamWorkRepository.findAll().stream()
