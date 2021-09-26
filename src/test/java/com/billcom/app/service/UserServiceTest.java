@@ -106,7 +106,7 @@ class UserServiceTest {
 
 	}
 
-	@Test
+	/*@Test
 	void should_save_user() {
 		// given
 		Role role = new Role(6, "manager");
@@ -125,7 +125,7 @@ class UserServiceTest {
 
 		// then
 		Mockito.verify(userService, Mockito.times(1)).create(userDto);
-	}
+	}*/
 
 	@Test
 	void should_throw_exception_when_user_not_Found() {
