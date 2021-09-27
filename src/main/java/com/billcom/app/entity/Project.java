@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,6 +30,7 @@ public class Project {
 	private long id;
 	private String name;
 	private int charge;
+	@Column(length = 2048)
 	private String description;
 	private LocalDateTime endDate;
 	private LocalDateTime startedDate;

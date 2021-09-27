@@ -118,7 +118,7 @@ public class MemberWorkService {
 		
 		
 		for (TeamDto t : teamOfTeamMember()) {
-			if (teamWorkRepository.findAll().stream().filter(work -> work.getTeam().getId() == t.getId() & work.getDateHour().getDayOfMonth() == LocalDateTime.now().getDayOfMonth()).findAny() == null ) {
+			if (!(teamWorkRepository.findAll().stream().filter(work -> work.getTeam().getId() == t.getId() & work.getDateHour().getDayOfMonth() == LocalDateTime.now().getDayOfMonth()).findAny().isPresent() )) {
 				Team team = new Team(t.getId(),t.getTeamName(),t.getStartedDate(),t.getDueDate());
 				WorkMember newWork = new WorkMember(0, LocalDateTime.now(), team, securityUtils.getLoggedUser());
 				 teamWorkRepository.save(newWork);
