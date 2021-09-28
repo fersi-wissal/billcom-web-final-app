@@ -15,7 +15,7 @@ import javax.sql.DataSource;
  * @author ferci wissal
  *
  */
-//@Configuration
+@Configuration
 
 public class DatabaseConfig {
 @Value("${spring.datasource.url}")
