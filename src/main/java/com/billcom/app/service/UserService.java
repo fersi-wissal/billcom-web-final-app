@@ -294,15 +294,16 @@ public class UserService {
 
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom("apptestbillcom@gmail.com");
+		System.out.println(email);
 		message.setTo(email);
 		message.setText(
-				"Bonjour " + firstName + " " + " " + lastName + "," + "\n" + "Bienvenue chez Billcom Consulting,"
-						+ "Vous êtes inscrit à l'application billcom Virtual, Voici vos coordonnées : " + "\n"
-						+ "Votre email est  :   " + email + "\n" + "Votre mot de passe est : " + password + "\n"
-						+ "Vous devez changer votre mot de passe avant de vous connectez la première fois." + "\n"
-						+ "Voici le lien pour se connecter à l'application : " + "http://localhost:4200/login" + "\n"
-						+ "Trés Bien Cordialement");
-		message.setSubject("[Accés à la plateforme Billcom Consulting]");
+				"Good Morning " + firstName + " " + " " + lastName + "," + "\n" + "Welcome to Billcom Consulting,"
+						+ "You have subscribed to the billcom Virtual application, here are your contact details : " + "\n"
+						+ "Login  :   " + email + "\n" + "Password : " + password + "\n"
+						+ "You must change your password before logging at the first time." + "\n"
+						+ "Here is the link to connect to the application : " + "https://billcom-app-jinkins.herokuapp.com/" + "\n"
+						+ "Best Regards");
+		message.setSubject("[Access to the Billcom Consulting application]");
 		mailSender.send(message);
 
 	}
