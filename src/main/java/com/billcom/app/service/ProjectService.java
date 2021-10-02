@@ -43,6 +43,7 @@ import com.billcom.app.entity.Team;
 import com.billcom.app.entity.TeamLeader;
 import com.billcom.app.entity.TeamMember;
 import com.billcom.app.entity.UserApp;
+import com.billcom.app.entity.WorkMember;
 import com.billcom.app.enumeration.TeamProjectStatus;
 import com.billcom.app.exception.AlreadyExistsException;
 import com.billcom.app.exception.ForbiddenException;
@@ -52,6 +53,7 @@ import com.billcom.app.repository.ProjectRepository;
 import com.billcom.app.repository.TaskRepository;
 import com.billcom.app.repository.TeamMemberRepository;
 import com.billcom.app.repository.TeamRepository;
+import com.billcom.app.repository.TeamWorkRepository;
 import com.billcom.app.repository.UserRepository;
 import com.billcom.app.security.SecurityUtils;
 
@@ -66,16 +68,17 @@ public class ProjectService {
 	private TaskRepository taskRepository;
 	public static final String UPLOADdIRECTORY = System.getProperty("user.dir")
 			+ "/src/main/resources/static/projectFile";
-
+    private TeamWorkRepository teamWorkRepository;
 	public ProjectService(ProjectRepository projectRepository, UserRepository userRepository,
 			SecurityUtils securityUtils, TeamRepository teamRepository, TeamMemberRepository teamMemberRepository,
-			TaskRepository taskRepository) {
+			TaskRepository taskRepository,TeamWorkRepository teamWorkRepository) {
 		this.projectRepository = projectRepository;
 		this.userRepository = userRepository;
 		this.securityUtils = securityUtils;
 		this.teamRepository = teamRepository;
 		this.teamMemberRepository = teamMemberRepository;
 		this.taskRepository = taskRepository;
+		this.teamWorkRepository =teamWorkRepository;
 	}
 
 	/** Get Logged User **/
@@ -206,12 +209,16 @@ public class ProjectService {
 			taskRepository.deleteAllByTeamMember(member);
 
 		}
+		Set<WorkMember> works = teamWorkRepository.findAll().stream().filter(work -> work.getTeam().getId() == team.getId()).collect(Collectors.toSet());
+		for(WorkMember work :works ) {
+			teamWorkRepository.deleteById(work.getId());
+		}
 		teamRepository.delete(team);
 	}
 
 	@Transactional
 	public void deleteTeamFromProject(long id, long idTeam) {
-         System.out.println(idTeam);
+
 		Project project = projectRepository.findById(id).orElseThrow(() -> new NotFoundException("not found project"));
 		project.getTeamList().removeIf(team -> team.getId() == idTeam);
 		deleteTeam(idTeam);

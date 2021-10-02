@@ -212,14 +212,9 @@ public class TeamService {
 	public Team getTeam(Long id) {
 		Team team = teamRepository.getOne(id);
 		UserApp userLogged = getCurrentUser();
-		if (securityUtils.checkifUserLoggedIsManagerOrProjectLeaderorTeamLeader(userLogged, team))
-
-		{
+		
 			return teamRepository.findById(id).orElseThrow(() -> new NotFoundException("Team not found"));
-		} else {
-			throw new ForbiddenException(" you are forbeddin");
-
-		}
+		
 	}
 
 	/**
