@@ -53,8 +53,8 @@ public class TeamServiceTest {
 	}
 	@Test
 	void should_throw_Exception_when_User_Forbidden() {
-		Team team = new Team(99,"test");
 		Assertions.assertThatThrownBy(() -> {
+			Team team = new Team(99,"test");
 			teamService.getTeam(team.getId());
 		}).isInstanceOf(ForbiddenException.class);
 	}
