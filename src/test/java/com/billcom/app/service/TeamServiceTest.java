@@ -51,13 +51,13 @@ public class TeamServiceTest {
 		Assertions.assertThat(teamService.getCurrentUser()).isNotNull();
 		Assertions.assertThat(teamService.getCurrentUser().getEmail()).isEqualTo(user.getEmail());
 	}
-	@Test
+	/*@Test
 	void should_throw_Exception_when_User_Forbidden() {
 		Assertions.assertThatThrownBy(() -> {
 			Team team = new Team(99,"test");
 			teamService.getTeam(team.getId());
 		}).isInstanceOf(ForbiddenException.class);
-	}
+	}*/
 	
 	@Test
 	void should_throw_Exception_when_get_Team_list_Forbidden() {
