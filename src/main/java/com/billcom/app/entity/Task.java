@@ -209,6 +209,16 @@ public class Task {
 
 
 
+	@Override
+	public String toString() {
+		return "Task [id=" + id + ", taskName=" + taskName + ", creationDate=" + creationDate + ", deleveryDate="
+				+ deleveryDate + ", effectiveDueDate=" + effectiveDueDate + ", descriptionTask=" + descriptionTask
+				+ ", files=" + files + ", createdBy=" + createdBy + ", taskPriority=" + taskPriority + ", teamMember="
+				+ teamMember + ", status=" + status + ", comments=" + comments + "]";
+	}
+
+
+
 
 
 

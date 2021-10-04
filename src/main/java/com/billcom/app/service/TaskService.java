@@ -393,14 +393,33 @@ public class TaskService {
 		taskListTeam = taskRepository.findAll().stream()
 				.filter(task -> task.getTeamMember().getUser().getId() == idUser)
 				.filter(task -> !(task.getStatus().getStatusDescritpion().equalsIgnoreCase("Done")))
-				.filter(task -> task.getCreationDate().isBefore(firstDate) & task.getDeleveryDate().isAfter(finalDate))
+				.filter(task -> task.getCreationDate().isAfter(firstDate) & task.getDeleveryDate().isBefore(finalDate))
 				.map(task -> new TeamTask(task, teamRepository.findById(teamId).get())).collect(Collectors.toList());
 
 		taskListTeam.addAll(taskRepository.findAll().stream()
 				.filter(task -> task.getTeamMember().getUser().getId() == idUser)
 				.filter(task -> !(task.getStatus().getStatusDescritpion().equalsIgnoreCase("Done")))
-				.filter(task -> task.getCreationDate().isAfter(firstDate) & task.getDeleveryDate().isBefore(finalDate))
+				.filter(task -> task.getCreationDate().isBefore(firstDate) & task.getDeleveryDate().isAfter(firstDate) & task.getDeleveryDate().isBefore(finalDate))
 				.map(task -> new TeamTask(task, teamRepository.findById(teamId).get())).collect(Collectors.toList()));
+		
+		   taskListTeam.addAll(taskRepository.findAll().stream()
+				.filter(task -> task.getTeamMember().getUser().getId() == idUser)
+				.filter(task -> !(task.getStatus().getStatusDescritpion().equalsIgnoreCase("Done")))
+				.filter(task -> task.getCreationDate().isBefore(finalDate) & task.getCreationDate().isAfter(firstDate) & task.getDeleveryDate().isAfter(finalDate))
+				.map(task -> new TeamTask(task, teamRepository.findById(teamId).get())).collect(Collectors.toList()));
+	
+		taskListTeam.addAll(taskRepository.findAll().stream()
+				.filter(task -> task.getTeamMember().getUser().getId() == idUser)
+				.filter(task -> !(task.getStatus().getStatusDescritpion().equalsIgnoreCase("Done")))
+				.filter(task -> task.getCreationDate().isBefore(firstDate) & task.getDeleveryDate().isAfter(finalDate))
+				.map(task -> new TeamTask(task, teamRepository.findById(teamId).get())).collect(Collectors.toList()));
+	
+		/*taskListTeam.addAll(taskRepository.findAll().stream()
+				.filter(task -> task.getTeamMember().getUser().getId() == idUser)
+				.filter(task -> !(task.getStatus().getStatusDescritpion().equalsIgnoreCase("Done")))
+				.filter(task -> task.getCreationDate().isBefore(firstDate) & task.getDeleveryDate().isBefore(finalDate))
+				.map(task -> new TeamTask(task, teamRepository.findById(teamId).get())).collect(Collectors.toList()));*/
+		
 		return taskListTeam;
 	}
 

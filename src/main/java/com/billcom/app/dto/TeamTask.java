@@ -26,6 +26,10 @@ public class TeamTask {
 	public void setTeam(Team team) {
 		this.team = team;
 	}
+	@Override
+	public String toString() {
+		return "TeamTask [task=" + task + ", team=" + team + "]";
+	}
 	
 
 }

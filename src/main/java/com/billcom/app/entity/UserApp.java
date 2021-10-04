@@ -149,6 +149,14 @@ public class UserApp {
 		this.adresse = adresse;
 		this.skills = skills;
 	}
+	public UserApp(long id, String firstName, String lastName, boolean active,
+			Set<Skill> skills) {
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.active = active;
+		this.skills = skills;
+	}
 	public UserApp(String firstName, String lastName, String mobile, String email, String adresse) {
 		this();
 		this.firstName = firstName;

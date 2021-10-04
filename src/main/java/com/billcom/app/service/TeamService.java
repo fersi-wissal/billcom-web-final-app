@@ -286,7 +286,7 @@ public class TeamService {
 
 	}
 	public List<Team> futureTeamListOfLeader() {
-		return teamRepository.findAll().stream().filter(team -> team.getLeader().getUser().getId() == getCurrentUser().getId()).filter(team-> team.getDueDate().isBefore(LocalDateTime.now()) & team.getStartDate().isBefore(LocalDateTime.now()))
+		return teamRepository.findAll().stream().filter(team -> team.getLeader().getUser().getId() == getCurrentUser().getId()).filter(team-> team.getDueDate().isAfter(LocalDateTime.now()) & team.getStartDate().isAfter(LocalDateTime.now()))
 				.collect(Collectors.toList());
 
 	}

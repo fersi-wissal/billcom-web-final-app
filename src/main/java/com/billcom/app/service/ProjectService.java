@@ -3,6 +3,7 @@ package com.billcom.app.service;
 import static java.nio.file.Files.copy;
 
 
+
 import static java.nio.file.Paths.get;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
@@ -21,7 +22,6 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import org.hibernate.criterion.ProjectionList;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -48,7 +48,6 @@ import com.billcom.app.enumeration.TeamProjectStatus;
 import com.billcom.app.exception.AlreadyExistsException;
 import com.billcom.app.exception.ForbiddenException;
 import com.billcom.app.exception.NotFoundException;
-import com.billcom.app.handler.NotifictionWebSocketHandler;
 import com.billcom.app.repository.ProjectRepository;
 import com.billcom.app.repository.TaskRepository;
 import com.billcom.app.repository.TeamMemberRepository;
@@ -174,6 +173,14 @@ public class ProjectService {
 				throw new AlreadyExistsException(" Project Has Team with this name ");
 
 			}
+			if (project.getStartedDate().isAfter(teamDto.getStartedDate()) || project.getEndDate().isBefore(teamDto.getDueDate()) ) {
+
+				throw new com.billcom.app.exception.IllegalArgumentException(" Invalid date ");
+
+
+			}
+			
+			
 			Team team = saveTeam(teamDto);
 			Set<Team> teamList = project.getTeamList();
 			teamList.add(team);

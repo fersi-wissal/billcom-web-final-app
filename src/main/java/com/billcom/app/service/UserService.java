@@ -44,6 +44,7 @@ import com.billcom.app.entity.Role;
 import com.billcom.app.entity.Skill;
 import com.billcom.app.entity.Task;
 import com.billcom.app.entity.UserApp;
+import com.billcom.app.exception.IllegalArgumentException;
 import com.billcom.app.exception.NotFoundException;
 import com.billcom.app.model.PasswordUpdateModel;
 import com.billcom.app.repository.RoleRepository;
@@ -116,6 +117,8 @@ public class UserService {
 				userRepository.save(user);
 				sendEmailRegisterUser(userDto.getEmail(), userDto.getPassword(), userDto.getFirstName(),
 						userDto.getLastName());
+			}else {
+				throw new IllegalArgumentException("Email or mobile exists!");
 			}
 
 		});
@@ -145,6 +148,10 @@ public class UserService {
 				sendEmailRegisterUser(userDto.getEmail(), userDto.getPassword(), userDto.getFirstName(),
 						userDto.getLastName());
 			}
+			else {
+				throw new IllegalArgumentException("Email or mobile exists!");
+			}
+
 
 		});
 
@@ -231,7 +238,7 @@ public class UserService {
 		return userRepository.findAll().stream().filter(UserApp::isActive).collect(Collectors.toList()).stream()
 				.filter(user -> user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("member")))
 				.collect(Collectors.mapping(
-						user -> new UserApp(user.getId(),  user.getFirstName(),user.getLastName(), user.isActive()),
+						user -> new UserApp(user.getId(),  user.getFirstName(),user.getLastName(), user.isActive(), user.getSkills()),
 						Collectors.toList()));
 
 	}
@@ -240,7 +247,7 @@ public class UserService {
 				.filter(user -> user.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("member")))
 				.filter(user -> user.getSkills().stream().anyMatch(skill -> skill.getRoleLabel().equalsIgnoreCase(name)))
 				.collect(Collectors.mapping(
-						user -> new UserApp(user.getId(),  user.getFirstName(),user.getLastName(),user.isActive() ),
+						user -> new UserApp(user.getId(),  user.getFirstName(),user.getLastName(),user.isActive(), user.getSkills() ),
 						Collectors.toList()));
 
 	}
